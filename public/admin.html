@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sultaf Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #f5efe6; color: #2c1810; padding: 28px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+    .header h1 { font-family: 'Playfair Display', serif; color: #800020; font-size: 28px; }
+    .header h1 span { color: #c8a45c; }
+    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .refresh-select { padding: 6px 10px; border: 1px solid #e0d6c8; border-radius: 6px; font-size: 12px; font-family: inherit; background: white; color: #2c1810; cursor: pointer; outline: none; }
+    .refresh-select:focus { border-color: #c8a45c; }
+    .btn-sm { padding: 9px 20px; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; color: white; transition: all 0.2s; }
+    .btn-sm.primary { background: #800020; }
+    .btn-sm.primary:hover { background: #5c0017; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(128,0,32,0.2); }
+    .btn-sm.danger { background: #c62828; }
+    .btn-sm.danger:hover { background: #b71c1c; }
+    .btn-sm.green { background: #2e7d32; }
+    .btn-sm.green:hover { background: #1b5e20; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(46,125,50,0.2); }
+    .btn-sm.gold { background: #c8a45c; color: #5c0017; }
+    .btn-sm.gold:hover { background: #d4b46c; transform: translateY(-1px); }
+    .btn-sm:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    .user-badge { font-size: 13px; color: #7a5a4a; }
+    .user-badge strong { color: #800020; }
+    .role-tag { display: inline-block; padding: 2px 8px; border-radius: 50px; font-size: 11px; }
+
+    .tabs { display: flex; gap: 4px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tab { padding: 10px 22px; border-radius: 10px 10px 0 0; background: transparent; border: none; font-size: 13px; font-weight: 500; cursor: pointer; color: #7a5a4a; transition: all 0.3s; }
+    .tab:hover { color: #800020; background: rgba(128,0,32,0.03); }
+    .tab.active { background: white; color: #800020; box-shadow: 0 -2px 12px rgba(128,0,32,0.06); font-weight: 600; }
+    .tab-count { display: inline-flex; align-items: center; justify-content: center; background: #800020; color: white; font-size: 11px; min-width: 20px; height: 20px; border-radius: 10px; margin-left: 6px; padding: 0 6px; }
+
+    .panel { display: none; animation: panelFade 0.25s ease; }
+    .panel.active { display: block; }
+    @keyframes panelFade { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(500px, 1fr)); gap: 16px; }
+    .menu-card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); display: flex; gap: 16px; align-items: flex-start; border: 1px solid rgba(0,0,0,0.02); transition: box-shadow 0.2s; }
+    .menu-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+    .menu-card-img { width: 100px; height: 100px; border-radius: 10px; object-fit: cover; flex-shrink: 0; background: #f0e8d8; display: flex; align-items: center; justify-content: center; font-size: 36px; }
+    .menu-card-form { flex: 1; }
+    .menu-card-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .menu-card-form .full { grid-column: 1 / -1; }
+    .menu-card-form label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #7a5a4a; margin-bottom: 4px; }
+    .menu-card-form input, .menu-card-form textarea, .menu-card-form select { width: 100%; padding: 9px 12px; border: 1px solid #e0d6c8; border-radius: 8px; font-size: 13px; font-family: inherit; background: white; transition: border-color 0.2s, box-shadow 0.2s; }
+    .menu-card-form input:focus, .menu-card-form textarea:focus, .menu-card-form select:focus { outline: none; border-color: #c8a45c; box-shadow: 0 0 0 3px rgba(200,164,92,0.1); }
+    .menu-card-form textarea { resize: vertical; min-height: 50px; }
+
+    .settings-card { background: white; border-radius: 14px; padding: 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin-bottom: 20px; max-width: 600px; border: 1px solid rgba(0,0,0,0.02); }
+    .settings-card h3 { font-size: 16px; color: #800020; margin-bottom: 16px; }
+    .settings-card .field { margin-bottom: 16px; }
+    .settings-card .field label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #7a5a4a; margin-bottom: 4px; }
+    .settings-card .field input, .settings-card .field select { width: 100%; padding: 10px 14px; border: 1px solid #e0d6c8; border-radius: 8px; font-size: 14px; font-family: inherit; transition: border-color 0.2s; }
+    .settings-card .field input:focus, .settings-card .field select:focus { outline: none; border-color: #c8a45c; box-shadow: 0 0 0 3px rgba(200,164,92,0.1); }
+    .settings-msg { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 8px; display: none; }
+    .settings-msg.success { display: block; background: rgba(46,125,50,0.08); color: #2e7d32; }
+    .settings-msg.error { display: block; background: rgba(198,40,40,0.08); color: #c62828; }
+
+    .card { background: white; border-radius: 14px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); margin-bottom: 16px; border: 1px solid rgba(0,0,0,0.02); }
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .card-title { font-weight: 600; font-size: 16px; }
+    .card-date { font-size: 12px; color: #7a5a4a; }
+    .card-body { font-size: 14px; line-height: 1.7; color: #4a3a2a; }
+    .card-body .label { color: #7a5a4a; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-top: 8px; }
+    .empty { text-align: center; padding: 60px 20px; color: #7a5a4a; background: white; border-radius: 14px; }
+    .empty-icon { font-size: 48px; margin-bottom: 12px; opacity: 0.3; }
+
+    .flash { position: fixed; top: 24px; right: 24px; padding: 14px 28px; border-radius: 12px; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transition: opacity 0.3s, transform 0.3s; pointer-events: none; transform: translateY(-10px); box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+    .flash.show { opacity: 1; transform: translateY(0); }
+    .flash.success { background: #2e7d32; color: white; }
+    .flash.error { background: #c62828; color: white; }
+    .recovery-code-display { background: #f0e8d8; padding: 16px 20px; border-radius: 10px; font-family: monospace; font-size: 22px; letter-spacing: 3px; color: #800020; font-weight: 700; text-align: center; margin: 12px 0; }
+
+    /* Add Form Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 999; display: none; align-items: center; justify-content: center; padding: 20px; animation: fadeIn 0.2s ease; }
+    .modal-overlay.active { display: flex; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(30px) scale(0.97); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .modal-content { background: white; border-radius: 20px; padding: 36px 32px 32px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; box-shadow: 0 25px 60px rgba(0,0,0,0.2); animation: slideUp 0.3s ease; }
+    .modal-close { float: right; background: none; border: none; font-size: 22px; cursor: pointer; color: #7a5a4a; padding: 4px; line-height: 1; }
+    .modal-close:hover { color: #800020; }
+    .modal-content h2 { font-family: 'Playfair Display', serif; font-size: 22px; color: #800020; margin-bottom: 4px; }
+    .modal-content .subtitle { font-size: 13px; color: #7a5a4a; margin-bottom: 24px; }
+
+    .field-group { margin-bottom: 18px; }
+    .field-group.half { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field-group label { display: block; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; color: #7a5a4a; margin-bottom: 5px; }
+    .field-group input, .field-group select, .field-group textarea { width: 100%; padding: 11px 15px; border: 1.5px solid #e0d6c8; border-radius: 10px; font-size: 14px; font-family: inherit; background: white; transition: border-color 0.2s, box-shadow 0.2s; }
+    .field-group input:focus, .field-group select:focus, .field-group textarea:focus { outline: none; border-color: #c8a45c; box-shadow: 0 0 0 3px rgba(200,164,92,0.12); }
+    .field-group textarea { resize: vertical; min-height: 70px; }
+    .input-prefix { display: flex; align-items: center; }
+    .input-prefix .prefix { background: #f0e8d8; padding: 11px 14px; border-radius: 10px 0 0 10px; font-size: 13px; color: #7a5a4a; font-family: monospace; border: 1.5px solid #e0d6c8; border-right: none; white-space: nowrap; }
+    .input-prefix input { flex: 1; border-radius: 0 10px 10px 0; }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #f0e8d8; }
+    .modal-actions .btn-primary { flex: 1; padding: 12px; border: none; border-radius: 10px; background: linear-gradient(135deg, #800020, #5c0017); color: white; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .modal-actions .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(128,0,32,0.25); }
+    .modal-actions .btn-primary:disabled { opacity: 0.5; transform: none; }
+    .modal-actions .btn-cancel { padding: 12px 24px; border: 1px solid #e0d6c8; border-radius: 10px; background: white; color: #7a5a4a; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .modal-actions .btn-cancel:hover { border-color: #c62828; color: #c62828; }
+
+    .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-top: 4px; }
+    .emoji-grid button { width: 100%; aspect-ratio: 1; border: 1.5px solid #e0d6c8; border-radius: 8px; background: white; font-size: 22px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+    .emoji-grid button:hover { border-color: #c8a45c; background: rgba(200,164,92,0.06); transform: scale(1.1); }
+    .emoji-grid button.active { border-color: #800020; background: rgba(128,0,32,0.04); }
+
+    @media (max-width: 600px) { body { padding: 12px; } .menu-grid { grid-template-columns: 1fr; } .menu-card { flex-direction: column; } .menu-card-img { width: 100%; height: 140px; } .field-group.half { grid-template-columns: 1fr; } }
+  
+    @keyframes spinLogo { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .logo-icon { animation: spinLogo 0.8s ease-in-out; }</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Sultaf <span id="pageTitle">Admin</span></h1>
+    <div class="user-badge">Logged in as: <strong id="currentUser">...</strong> <span id="userRoleBadge" class="role-tag"></span></div>
+  </div>
+  <div class="header-right">
+    <button class="btn-sm primary" onclick="location.reload()">⟳ Refresh</button>
+    <span style="font-size:12px;color:#7a5a4a;white-space:nowrap;">Auto:</span>
+    <select id="refreshInterval" onchange="changeRefreshInterval(this.value)" class="refresh-select">
+      <option value="0">Off</option>
+      <option value="15000" selected>15s</option>
+      <option value="30000">30s</option>
+      <option value="60000">60s</option>
+    </select>
+    <button class="btn-sm" onclick="testNotification()" style="background:#c8a45c;color:#5c0017;">🔔 Test</button>
+    <button class="btn-sm danger" onclick="logout()">🚪 Logout</button>
+  </div>
+</div>
+
+<div id="flash" class="flash"></div>
+
+<div class="tabs">
+  <button class="tab active" onclick="switchTab('menu', this)">✏️ Menu</button>
+  <button class="tab" onclick="switchTab('ambiance', this)">🕯️ Ambiance</button>
+  <button class="tab" onclick="switchTab('gallery', this)">🖼️ Gallery</button>
+  <button class="tab" id="messagesTab" style="display:none;" onclick="switchTab('messages', this)">✉️ Messages <span class="tab-count" id="msgCount">0</span></button>
+  <button class="tab" id="reservationsTab" style="display:none;" onclick="switchTab('reservations', this)">📅 Reservations <span class="tab-count" id="resCount">0</span></button>
+  <button class="tab" id="settingsTab" style="display:none;" onclick="switchTab('settings', this)">⚙️ Settings</button>
+  <button class="tab" id="usersTab" style="display:none;" onclick="switchTab('users', this)">👥 Users <span class="tab-count" id="usersCount">0</span></button>
+</div>
+
+<!-- ═══ MENU PANEL ═══ -->
+<div class="panel active" id="panel-menu">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px;">
+    <div>
+      <p style="color:#7a5a4a;font-size:14px;">Manage menu items, prices, and photos.</p>
+    </div>
+    <button class="btn-sm gold" onclick="openAddModal()" style="padding:10px 24px;font-size:14px;">✦ Add New Item</button>
+  </div>
+  <div id="menuList"><p style="color:#7a5a4a;">Loading menu...</p></div>
+</div>
+
+<!-- Add New Item Modal -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeAddModal()">✕</button>
+    <h2>✦ New Menu Item</h2>
+    <p class="subtitle">Add a delicious dish to your menu</p>
+    <div class="field-group half">
+      <div>
+        <label>Dish Name</label>
+        <input id="addName" placeholder="e.g. Nasi Biryani" />
+      </div>
+      <div>
+        <label>Price</label>
+        <input id="addPrice" placeholder="e.g. Rp 49.000" />
+      </div>
+    </div>
+    <div class="field-group half">
+      <div>
+        <label>Category</label>
+        <select id="addCategory">
+          <option value="appetizers">Breads & Starters</option>
+          <option value="mains">Rice & Mains</option>
+          <option value="desserts">Desserts</option>
+          <option value="drinks">Drinks</option>
+        </select>
+      </div>
+      <div>
+        <label>Emoji Icon</label>
+        <input id="addIcon" value="🍽" placeholder="Pick an emoji" />
+        <div class="emoji-grid">
+          <button onclick="pickEmoji('🍽')" class="active">🍽</button>
+          <button onclick="pickEmoji('🍛')">🍛</button>
+          <button onclick="pickEmoji('🍗')">🍗</button>
+          <button onclick="pickEmoji('🍖')">🍖</button>
+          <button onclick="pickEmoji('🥩')">🥩</button>
+          <button onclick="pickEmoji('🍲')">🍲</button>
+          <button onclick="pickEmoji('🥘')">🥘</button>
+          <button onclick="pickEmoji('🥟')">🥟</button>
+          <button onclick="pickEmoji('🫓')">🫓</button>
+          <button onclick="pickEmoji('🥙')">🥙</button>
+          <button onclick="pickEmoji('🍯')">🍯</button>
+          <button onclick="pickEmoji('🥮')">🥮</button>
+          <button onclick="pickEmoji('☕')">☕</button>
+          <button onclick="pickEmoji('🍵')">🍵</button>
+          <button onclick="pickEmoji('🥤')">🥤</button>
+          <button onclick="pickEmoji('🍋')">🍋</button>
+        </div>
+      </div>
+    </div>
+    <div class="field-group">
+      <label>Description</label>
+      <textarea id="addDesc" rows="3" placeholder="Describe the dish..."></textarea>
+    </div>
+    <div class="field-group">
+      <label>Photo</label>
+      <div class="input-prefix">
+        <span class="prefix">/images/</span>
+        <input id="addImage" placeholder="biryani.jpg" />
+      </div>
+      <p style="font-size:12px;color:#7a5a4a;margin-top:4px;">Put the photo in the /images/ folder, then just type the filename</p>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="addMenuItem()" id="addBtn">✦ Add to Menu</button>
+      <button class="btn-cancel" onclick="closeAddModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ AMBIANCE PANEL ═══ -->
+<div class="panel" id="panel-ambiance">
+  <div class="settings-card" style="max-width:100%;">
+    <h3>🖼️ Website Hero Background</h3>
+    <p style="font-size:13px;color:#7a5a4a;margin-bottom:14px;">This is the main background image at the top of your website.</p>
+    <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;">
+      <div style="width:200px;height:120px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#f0e8d8;display:flex;align-items:center;justify-content:center;font-size:32px;" id="heroPreview">🖼️</div>
+      <div style="flex:1;min-width:200px;">
+        <div class="field" style="margin:0;">
+          <label>Hero Image Filename</label>
+          <div style="display:flex;">
+            <span style="background:#f0e8d8;padding:10px 12px;border-radius:8px 0 0 8px;font-size:13px;color:#7a5a4a;font-family:monospace;border:1px solid #e0d6c8;border-right:none;white-space:nowrap;">/images/</span>
+            <input id="heroImageInput" value="cover.jpg" placeholder="hero.jpg" style="flex:1;border-radius:0 8px 8px 0;" />
+          </div>
+        </div>
+        <div id="heroMsg" class="settings-msg"></div>
+        <button class="btn-sm primary" onclick="saveHeroImage()" style="margin-top:8px;" id="heroBtn">💾 Save Hero Image</button>
+      </div>
+    </div>
+  </div>
+  <div class="settings-card" style="max-width:100%;margin-top:16px;">
+    <h3>⭐ Logo</h3>
+    <p style="font-size:13px;color:#7a5a4a;margin-bottom:14px;">Put your logo image in the <code style="background:#f0e8d8;padding:2px 6px;border-radius:4px;">/images/</code> folder, then type the filename below. Leave empty to keep the default moon-star icon.</p>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+      <div style="width:60px;height:60px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#800020;display:flex;align-items:center;justify-content:center;font-size:28px;color:#c8a45c;" id="logoPreview">☪</div>
+      <div style="flex:1;min-width:200px;">
+        <div class="field" style="margin:0;">
+          <label>Logo Filename</label>
+          <div style="display:flex;">
+            <span style="background:#f0e8d8;padding:10px 12px;border-radius:8px 0 0 8px;font-size:13px;color:#7a5a4a;font-family:monospace;border:1px solid #e0d6c8;border-right:none;white-space:nowrap;">/images/</span>
+            <input id="logoImageInput" value="" placeholder="logo.png (leave empty for default)" style="flex:1;border-radius:0 8px 8px 0;" />
+          </div>
+        </div>
+        <div id="logoMsg" class="settings-msg"></div>
+        <button class="btn-sm primary" onclick="saveLogoImage()" style="margin-top:8px;" id="logoBtn">💾 Save Logo</button>
+      </div>
+    </div>
+  </div>
+  <div class="settings-card" style="max-width:100%;margin-top:16px;">
+    <h3>📱 Confirmation QR Code</h3>
+    <p style="font-size:13px;color:#7a5a4a;margin-bottom:14px;">This image (QR code or payment info) will pop up when a customer confirms a reservation.</p>
+    <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;">
+      <div style="width:120px;height:120px;border-radius:12px;overflow:hidden;flex-shrink:0;background:var(--bg-alt);display:flex;align-items:center;justify-content:center;font-size:40px;border:1px dashed var(--border);" id="confirmPreview">📱</div>
+      <div style="flex:1;min-width:200px;">
+        <div class="field" style="margin:0;">
+          <label>QR Code Image Filename</label>
+          <div style="display:flex;">
+            <span style="background:#f0e8d8;padding:10px 12px;border-radius:8px 0 0 8px;font-size:13px;color:#7a5a4a;font-family:monospace;border:1px solid #e0d6c8;border-right:none;white-space:nowrap;">/images/</span>
+            <input id="confirmImageInput" value="confirmation-default.jpg" placeholder="qr-code.jpg" style="flex:1;border-radius:0 8px 8px 0;" />
+          </div>
+        </div>
+        <div id="confirmMsg" class="settings-msg"></div>
+        <button class="btn-sm primary" onclick="saveConfirmImage()" style="margin-top:8px;" id="confirmBtn">💾 Save QR Image</button>
+      </div>
+    </div>
+  </div>
+  <div class="settings-card" style="max-width:100%;margin-top:16px;">
+    <h3>⏰ Reservation Time Range</h3>
+    <p style="font-size:13px;color:#7a5a4a;margin-bottom:14px;">Set the available time slots for reservations on your website.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:400px;">
+      <div class="field" style="margin:0;">
+        <label>Opening Time</label>
+        <select id="resOpenTime" style="width:100%;padding:10px 14px;border:1px solid #e0d6c8;border-radius:8px;font-size:14px;font-family:inherit;">
+          <option value="10:00 AM">10:00 AM</option>
+          <option value="10:30 AM">10:30 AM</option>
+          <option value="11:00 AM">11:00 AM</option>
+          <option value="11:30 AM">11:30 AM</option>
+          <option value="12:00 PM" selected>12:00 PM</option>
+          <option value="12:30 PM">12:30 PM</option>
+          <option value="1:00 PM">1:00 PM</option>
+          <option value="1:30 PM">1:30 PM</option>
+          <option value="2:00 PM">2:00 PM</option>
+          <option value="2:30 PM">2:30 PM</option>
+          <option value="3:00 PM">3:00 PM</option>
+          <option value="4:00 PM">4:00 PM</option>
+          <option value="5:00 PM">5:00 PM</option>
+          <option value="5:30 PM">5:30 PM</option>
+          <option value="6:00 PM">6:00 PM</option>
+        </select>
+      </div>
+      <div class="field" style="margin:0;">
+        <label>Closing Time</label>
+        <select id="resCloseTime" style="width:100%;padding:10px 14px;border:1px solid #e0d6c8;border-radius:8px;font-size:14px;font-family:inherit;">
+          <option value="12:00 PM">12:00 PM</option>
+          <option value="1:00 PM">1:00 PM</option>
+          <option value="2:00 PM">2:00 PM</option>
+          <option value="3:00 PM">3:00 PM</option>
+          <option value="4:00 PM">4:00 PM</option>
+          <option value="5:00 PM">5:00 PM</option>
+          <option value="5:30 PM">5:30 PM</option>
+          <option value="6:00 PM">6:00 PM</option>
+          <option value="6:30 PM">6:30 PM</option>
+          <option value="7:00 PM">7:00 PM</option>
+          <option value="7:30 PM">7:30 PM</option>
+          <option value="8:00 PM">8:00 PM</option>
+          <option value="8:30 PM">8:30 PM</option>
+          <option value="9:00 PM">9:00 PM</option>
+          <option value="9:30 PM" selected>9:30 PM</option>
+          <option value="10:00 PM">10:00 PM</option>
+          <option value="10:30 PM">10:30 PM</option>
+          <option value="11:00 PM">11:00 PM</option>
+        </select>
+      </div>
+    </div>
+    <div id="timeMsg" class="settings-msg"></div>
+    <button class="btn-sm primary" onclick="saveReservationTimes()" style="margin-top:8px;" id="timeBtn">💾 Save Time Range</button>
+  </div>
+  <div class="settings-card" style="max-width:100%;background:#faf6f0;border:1px solid #e0d6c8;">
+    <h3>📐 Recommended Image Sizes</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr><th style="text-align:left;padding:8px 12px;border-bottom:1px solid #e0d6c8;color:#7a5a4a;">Section</th><th style="text-align:left;padding:8px 12px;border-bottom:1px solid #e0d6c8;color:#7a5a4a;">Best Size (px)</th><th style="text-align:left;padding:8px 12px;border-bottom:1px solid #e0d6c8;color:#7a5a4a;">Tips</th></tr>
+      <tr><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">🖼️ Hero Background</td><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">1920 x 1080</td><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">Wide landscape</td></tr>
+      <tr><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">⭐ Logo</td><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">200 x 200</td><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">Square, PNG with transparency</td></tr>
+      <tr><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">🍽 Menu Items</td><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">600 x 450</td><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">4:3 ratio</td></tr>
+      <tr><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">🕯️ Ambiance</td><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">800 x 600</td><td style="padding:8px 12px;border-bottom:1px solid #f0e8d8;">4:3 ratio</td></tr>
+      <tr><td style="padding:8px 12px;">🖼️ Gallery</td><td style="padding:8px 12px;">800 x 800</td><td style="padding:8px 12px;">Square 1:1</td></tr>
+    </table>
+    <p style="font-size:12px;color:#7a5a4a;margin-top:12px;padding-top:12px;border-top:1px solid #e0d6c8;">💡 Keep photos under 200 KB for fast loading. Use .jpg for photos, .png for graphics.</p>
+  </div>
+  <p style="color:#7a5a4a;font-size:14px;margin-bottom:16px;margin-top:8px;">Edit ambiance item titles and photos.</p>
+  <div id="ambianceList"><p style="color:#7a5a4a;">Loading ambiance...</p></div>
+</div>
+
+<!-- ═══ GALLERY PANEL ═══ -->
+<div class="panel" id="panel-gallery">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+    <p style="color:#7a5a4a;font-size:14px;">Manage gallery images.</p>
+    <button class="btn-sm green" onclick="showAddGallery()">➕ Add Image</button>
+  </div>
+  <div id="galleryList"><p style="color:#7a5a4a;">Loading gallery...</p></div>
+</div>
+
+<!-- ═══ MESSAGES PANEL ═══ -->
+<div class="panel" id="panel-messages">
+  <div id="messagesList"><div class="empty"><div class="empty-icon">✉️</div>No messages yet.</div></div>
+</div>
+
+<!-- ═══ RESERVATIONS PANEL ═══ -->
+<div class="panel" id="panel-reservations">
+  <div id="reservationsList"><div class="empty"><div class="empty-icon">📅</div>No reservations yet.</div></div>
+</div>
+
+<!-- ═══ SETTINGS PANEL ═══ -->
+<div class="panel" id="panel-settings">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;align-items:start;">
+    <div class="settings-card">
+      <h3>🔑 Change Password</h3>
+      <div class="field"><label>Current Password</label><input type="password" id="cpCurrent" /></div>
+      <div class="field"><label>New Password</label><input type="password" id="cpNew" /></div>
+      <div class="field"><label>Confirm</label><input type="password" id="cpConfirm" /></div>
+      <div id="cpMsg" class="settings-msg"></div>
+      <button class="btn-sm primary" onclick="changePassword()">Change Password</button>
+    </div>
+    <div class="settings-card">
+      <h3>👤 Change Username</h3>
+      <div class="field"><label>Current Password</label><input type="password" id="cuCurrent" /></div>
+      <div class="field"><label>New Username</label><input type="text" id="cuNew" placeholder="Enter new username" /></div>
+      <div id="cuMsg" class="settings-msg"></div>
+      <button class="btn-sm primary" onclick="changeUsername()">Change Username</button>
+    </div>
+    <div class="settings-card">
+      <h3>❓ Secret Question</h3>
+      <p style="font-size:13px;color:#7a5a4a;margin-bottom:14px;">Used to recover your password.</p>
+      <div class="field"><label>Question</label><select id="sqQuestion"><option value="What is your mother's maiden name?">Mother's maiden name?</option><option value="What was the name of your first pet?">First pet?</option><option value="What city were you born in?">Birth city?</option><option value="What is your favorite food?">Favorite food?</option></select></div>
+      <div class="field"><label>Answer</label><input type="text" id="sqAnswer" placeholder="Your answer" /></div>
+      <div id="sqMsg" class="settings-msg"></div>
+      <button class="btn-sm primary" onclick="saveSecretQuestion()">Save Question</button>
+    </div>
+    <div class="settings-card" style="grid-column:1/-1;max-width:100%;">
+      <h3>🔐 Recovery Code</h3>
+      <p style="font-size:13px;color:#7a5a4a;margin-bottom:14px;">One-time code to reset password if you're locked out.</p>
+      <div id="rcDisplay" class="recovery-code-display" style="display:none;"></div>
+      <div id="rcMsg" class="settings-msg"></div>
+      <button class="btn-sm primary" onclick="generateRecoveryCode()">🔄 Generate Code</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ USERS PANEL ═══ -->
+<div class="panel" id="panel-users">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:900px;align-items:start;">
+    <div class="settings-card">
+      <h3>➕ Create Staff User</h3>
+      <p style="font-size:13px;color:#7a5a4a;margin-bottom:14px;">They can edit menu/ambiance/gallery.</p>
+      <div class="field"><label>Username</label><input id="newUsername" placeholder="e.g. staff1" /></div>
+      <div class="field"><label>Password</label><input type="password" id="newPassword" placeholder="min 6 chars" /></div>
+      <div id="createUserMsg" class="settings-msg"></div>
+      <button class="btn-sm primary" onclick="createUser()">Create User</button>
+    </div>
+    <div class="settings-card">
+      <h3>👥 All Users</h3>
+      <div id="usersList"><p style="color:#7a5a4a;">Loading...</p></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var API_BASE = '';
+var currentUserRole = '';
+
+// ── Helpers ────────────────────────────────────────────
+function flash(msg, type) {
+  if (!type) type = 'success';
+  var el = document.getElementById('flash');
+  el.textContent = msg; el.className = 'flash ' + type + ' show';
+  setTimeout(function() { el.classList.remove('show'); }, 3000);
+}
+function escapeHtml(t) { if (!t) return ''; var d = document.createElement('div'); d.textContent = t; return d.innerHTML; }
+function getImgPath(v) {
+  if (!v) return null;
+  if (v.startsWith('/images/') || v.startsWith('http')) return v;
+  if (v.indexOf('/') !== -1) return '/images/' + v.split('/').pop();
+  return '/images/' + v;
+}
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  btn.classList.add('active');
+  document.getElementById('panel-' + name).classList.add('active');
+}
+
+// ── Auth ───────────────────────────────────────────────
+async function checkAuth() {
+  try {
+    var res = await fetch('/api/auth/check');
+    var json = await res.json();
+    if (!json.authenticated) { window.location.href = '/login.html?redirect=admin.html'; return; }
+    currentUserRole = json.user.role || 'admin';
+    document.getElementById('currentUser').textContent = json.user.username;
+    document.getElementById('pageTitle').textContent = 'Admin';
+    document.title = 'Sultaf Admin';
+    document.getElementById('messagesTab').style.display = '';
+    document.getElementById('reservationsTab').style.display = '';
+    document.getElementById('settingsTab').style.display = '';
+  } catch(e) { window.location.href = '/login.html?redirect=admin.html'; }
+}
+async function logout() {
+  await fetch('/api/auth/logout', {method:'POST'});
+  window.location.href = '/login.html';
+}
+
+// ══════════════════════════════════════════════════════════
+//  MENU MANAGEMENT
+// ══════════════════════════════════════════════════════════
+
+function openAddModal() {
+  document.getElementById('addModal').classList.add('active');
+  document.getElementById('addName').focus();
+}
+
+function closeAddModal() {
+  document.getElementById('addModal').classList.remove('active');
+}
+
+function pickEmoji(emoji) {
+  document.getElementById('addIcon').value = emoji;
+  var btns = document.querySelectorAll('.emoji-grid button');
+  for (var i = 0; i < btns.length; i++) btns[i].classList.remove('active');
+  event.target.classList.add('active');
+}
+
+async function loadMenu() {
+  var container = document.getElementById('menuList');
+  try {
+    var res = await fetch(API_BASE + '/api/menu');
+    var json = await res.json();
+    if (!json.success) throw Error('Failed');
+    var items = json.data;
+    if (items.length === 0) { container.innerHTML = '<p style="color:#7a5a4a;">No menu items yet.</p>'; return; }
+    var html = '<div class="menu-grid">';
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var cats = ['appetizers','mains','desserts','drinks'];
+      var labels = ['Breads &amp; Starters','Rice &amp; Mains','Desserts','Drinks'];
+      var catSel = '';
+      for (var ci = 0; ci < cats.length; ci++) { catSel += '<option value="' + cats[ci] + '"' + (item.category === cats[ci] ? ' selected' : '') + '>' + labels[ci] + '</option>'; }
+      var img = item.image ? '<img class="menu-card-img" src="' + item.image + '" />' : '<div class="menu-card-img">' + (item.icon || '🍽') + '</div>';
+      var checked = item.sold_out ? ' checked' : '';
+      html += '<div class="menu-card" id="mcard-' + item.id + '">' + img
+        + '<div class="menu-card-form"><div class="row"><div><label>Name</label><input id="mn-' + item.id + '" value="' + escapeHtml(item.name) + '" /></div><div><label>Price</label><input id="mp-' + item.id + '" value="' + escapeHtml(item.price) + '" /></div></div>'
+        + '<div class="row"><div><label>Category</label><select id="mc-' + item.id + '">' + catSel + '</select></div><div><label>Emoji</label><input id="mico-' + item.id + '" value="' + escapeHtml(item.icon || '🍽') + '" /></div></div>'
+        + '<div class="row full"><div><label>Photo</label><div style="display:flex;"><span style="background:#f0e8d8;padding:6px 10px;border-radius:6px 0 0 6px;font-size:12px;color:#7a5a4a;font-family:monospace;border:1px solid #e0d6c8;border-right:none;">/images/</span><input id="mimg-' + item.id + '" value="' + escapeHtml((item.image||'').replace('/images/','')) + '" placeholder="biryani.jpg" style="flex:1;border-radius:0 6px 6px 0;" /></div></div></div>'
+        + '<div class="row full"><div><label>Description</label><textarea id="md-' + item.id + '" rows="2">' + escapeHtml(item.description||'') + '</textarea></div></div>'
+        + '<div style="display:flex;gap:8px;align-items:center;border-top:1px solid #f0e8d8;padding-top:8px;">'
+        + '<button class="btn-sm primary" onclick="saveItem(' + item.id + ')" id="ms-' + item.id + '">💾 Save</button>'
+        + '<button class="btn-sm danger" onclick="deleteItem(' + item.id + ')">🗑 Delete</button>'
+        + '<label style="margin-left:auto;display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#7a5a4a;"><input type="checkbox" onchange="toggleSoldOut(' + item.id + ')" id="msold-' + item.id + '"' + checked + ' /> Sold Out</label>'
+        + '</div></div></div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  } catch(e) { container.innerHTML = '<p style="color:#c62828;">Could not load menu.</p>'; }
+}
+
+async function saveItem(id) {
+  var data = {
+    name: document.getElementById('mn-' + id).value.trim(),
+    price: document.getElementById('mp-' + id).value.trim(),
+    category: document.getElementById('mc-' + id).value,
+    icon: document.getElementById('mico-' + id) ? document.getElementById('mico-' + id).value.trim() : '🍽',
+    image: getImgPath(document.getElementById('mimg-' + id).value.trim()),
+    description: document.getElementById('md-' + id).value.trim(),
+    sold_out: document.getElementById('msold-' + id) ? (document.getElementById('msold-' + id).checked ? 1 : 0) : 0,
+  };
+  if (!data.name || !data.price) { flash('Name & price required!', 'error'); return; }
+  // Auto-format price: ensure it has Rp prefix and proper format
+  data.price = data.price.trim();
+  if (data.price.indexOf('Rp') === -1) {
+    var numOnly = data.price.replace(/[^0-9]/g, '');
+    if (numOnly) {
+      var formatted = '';
+      while (numOnly.length > 3) { formatted = '.' + numOnly.slice(-3) + formatted; numOnly = numOnly.slice(0, -3); }
+      data.price = 'Rp ' + numOnly + formatted;
+    }
+  }
+  try {
+    var res = await fetch('/api/menu/' + id, { method: 'PUT', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    var json = await res.json();
+    if (json.success) { flash('Saved!'); } else { flash(json.error||'Error','error'); }
+  } catch(e) { flash('Connection error.','error'); }
+}
+
+async function deleteItem(id) {
+  if (!confirm('Delete this item?')) return;
+  try { await fetch('/api/menu/' + id, {method:'DELETE'}); var el = document.getElementById('mcard-' + id); if (el) el.remove(); flash('Deleted!'); } catch(e) { flash('Error.','error'); }
+}
+
+function toggleSoldOut(id) { saveItem(id); }
+
+async function addMenuItem() {
+  var data = {
+    name: document.getElementById('addName').value.trim(),
+    price: document.getElementById('addPrice').value.trim(),
+    category: document.getElementById('addCategory').value,
+    icon: document.getElementById('addIcon').value.trim() || '🍽',
+    image: getImgPath(document.getElementById('addImage').value.trim()),
+    description: document.getElementById('addDesc').value.trim(),
+  };
+  if (!data.name || !data.price) { flash('Name & price required!','error'); return; }
+  // Auto-format price
+  data.price = data.price.trim();
+  if (data.price.indexOf('Rp') === -1) {
+    var numOnly = data.price.replace(/[^0-9]/g, '');
+    if (numOnly) {
+      var formatted = '';
+      while (numOnly.length > 3) { formatted = '.' + numOnly.slice(-3) + formatted; numOnly = numOnly.slice(0, -3); }
+      data.price = 'Rp ' + numOnly + formatted;
+    }
+  }
+  var btn = document.getElementById('addBtn'); btn.disabled = true; btn.textContent = 'Adding...';
+  try {
+    var res = await fetch('/api/menu', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    var json = await res.json();
+    if (json.success) { flash('Item added!'); closeAddModal(); document.getElementById('addName').value = ''; document.getElementById('addPrice').value = ''; document.getElementById('addIcon').value = '🍽'; document.getElementById('addDesc').value = ''; document.getElementById('addImage').value = ''; loadMenu(); }
+    else { flash(json.error||'Error','error'); }
+  } catch(e) { flash('Connection error.','error'); }
+  btn.disabled = false; btn.textContent = 'Add to Menu';
+}
+
+// ══════════════════════════════════════════════════════════
+//  HERO IMAGE
+// ══════════════════════════════════════════════════════════
+
+async function loadReservationTimes() {
+  try {
+    var res = await fetch('/api/restaurant-info');
+    var json = await res.json();
+    if (json.success) {
+      var openTime = json.data.reservation_open || '12:00 PM';
+      var closeTime = json.data.reservation_close || '9:30 PM';
+      document.getElementById('resOpenTime').value = openTime;
+      document.getElementById('resCloseTime').value = closeTime;
+    }
+  } catch(e) {}
+}
+
+async function saveReservationTimes() {
+  var openTime = document.getElementById('resOpenTime').value;
+  var closeTime = document.getElementById('resCloseTime').value;
+  var btn = document.getElementById('timeBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    await fetch('/api/restaurant-info', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({key:'reservation_open', value:openTime}) });
+    var res2 = await fetch('/api/restaurant-info', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({key:'reservation_close', value:closeTime}) });
+    var json2 = await res2.json();
+    if (json2.success) { showSMsg('timeMsg', '✅ Time range saved! Refresh the website to see changes.', 'success'); }
+    else { showSMsg('timeMsg', json2.error||'Error', 'error'); }
+  } catch(e) { showSMsg('timeMsg', 'Connection error.', 'error'); }
+  btn.disabled = false; btn.textContent = '💾 Save Time Range';
+}
+
+async function loadHeroImage() {
+  try {
+    var res = await fetch('/api/restaurant-info');
+    var json = await res.json();
+    if (json.success && json.data.hero_image) {
+      var heroVal = json.data.hero_image.replace('/images/', '');
+      document.getElementById('heroImageInput').value = heroVal;
+      document.getElementById('heroPreview').innerHTML = '<img src="' + json.data.hero_image + '" style="width:200px;height:120px;object-fit:cover;border-radius:12px;" />';
+    }
+  } catch(e) {}
+}
+
+async function saveHeroImage() {
+  var val = document.getElementById('heroImageInput').value.trim();
+  if (!val) { showSMsg('heroMsg', 'Enter a filename.', 'error'); return; }
+  var path = val.startsWith('/') ? val : '/images/' + val;
+  var btn = document.getElementById('heroBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    var res = await fetch('/api/restaurant-info', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({key:'hero_image', value:path}) });
+    var json = await res.json();
+    if (json.success) {
+      document.getElementById('heroPreview').innerHTML = '<img src="' + path + '" style="width:200px;height:120px;object-fit:cover;border-radius:12px;" onerror="this.parentElement.innerHTML=\'🖼️\'" />';
+      showSMsg('heroMsg', '✅ Hero image saved! Refresh the website to see it.', 'success');
+    } else { showSMsg('heroMsg', json.error||'Error', 'error'); }
+  } catch(e) { showSMsg('heroMsg', 'Connection error.', 'error'); }
+  btn.disabled = false; btn.textContent = '💾 Save Hero Image';
+}
+
+// ══════════════════════════════════════════════════════════
+//  LOGO
+// ══════════════════════════════════════════════════════════
+
+async function loadLogoImage() {
+  try {
+    var res = await fetch('/api/restaurant-info');
+    var json = await res.json();
+    if (json.success && json.data.logo_image) {
+      var logoVal = json.data.logo_image.replace('/images/', '');
+      document.getElementById('logoImageInput').value = logoVal;
+      document.getElementById('logoPreview').innerHTML = '<img src="' + json.data.logo_image + '" style="width:60px;height:60px;object-fit:contain;border-radius:12px;" />';
+    }
+  } catch(e) {}
+}
+
+async function saveLogoImage() {
+  var val = document.getElementById('logoImageInput').value.trim();
+  var path = val ? (val.startsWith('/') ? val : '/images/' + val) : '';
+  var btn = document.getElementById('logoBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    var res = await fetch('/api/restaurant-info', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({key:'logo_image', value:path}) });
+    var json = await res.json();
+    if (json.success) {
+      if (path) {
+        document.getElementById('logoPreview').innerHTML = '<img src="' + path + '" style="width:60px;height:60px;object-fit:contain;border-radius:12px;" onerror="this.parentElement.innerHTML=\'☪\'" />';
+      } else {
+        document.getElementById('logoPreview').innerHTML = '☪';
+      }
+      showSMsg('logoMsg', '✅ Logo saved! Refresh the website to see it.', 'success');
+    } else { showSMsg('logoMsg', json.error||'Error', 'error'); }
+  } catch(e) { showSMsg('logoMsg', 'Connection error.', 'error'); }
+  btn.disabled = false; btn.textContent = '💾 Save Logo';
+}
+
+// ══════════════════════════════════════════════════════════
+//  CONFIRMATION QR IMAGE
+// ══════════════════════════════════════════════════════════
+
+async function loadConfirmImage() {
+  try {
+    var res = await fetch('/api/restaurant-info');
+    var json = await res.json();
+    if (json.success && json.data.confirmation_image) {
+      var val = json.data.confirmation_image.replace('/images/', '');
+      document.getElementById('confirmImageInput').value = val;
+      document.getElementById('confirmPreview').innerHTML = '<img src="' + json.data.confirmation_image + '" style="width:120px;height:120px;object-fit:contain;border-radius:12px;" />';
+    }
+  } catch(e) {}
+}
+
+async function saveConfirmImage() {
+  var val = document.getElementById('confirmImageInput').value.trim();
+  if (!val) { showSMsg('confirmMsg', 'Enter a filename.', 'error'); return; }
+  var path = val.startsWith('/') ? val : '/images/' + val;
+  var btn = document.getElementById('confirmBtn');
+  btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    var res = await fetch('/api/restaurant-info', { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({key:'confirmation_image', value:path}) });
+    var json = await res.json();
+    if (json.success) {
+      document.getElementById('confirmPreview').innerHTML = '<img src="' + path + '" style="width:120px;height:120px;object-fit:contain;border-radius:12px;" onerror="this.parentElement.innerHTML=\'📱\'" />';
+      showSMsg('confirmMsg', '✅ QR image saved!', 'success');
+    } else { showSMsg('confirmMsg', json.error||'Error', 'error'); }
+  } catch(e) { showSMsg('confirmMsg', 'Connection error.', 'error'); }
+  btn.disabled = false; btn.textContent = '💾 Save QR Image';
+}
+
+// ══════════════════════════════════════════════════════════
+//  AMBIANCE MANAGEMENT
+// ══════════════════════════════════════════════════════════
+
+async function loadAmbiance() {
+  var container = document.getElementById('ambianceList');
+  try {
+    var res = await fetch(API_BASE + '/api/ambiance');
+    var json = await res.json();
+    if (!json.success) throw Error('Failed');
+    var items = json.data;
+    if (items.length === 0) { container.innerHTML = '<p style="color:#7a5a4a;">No ambiance items.</p>'; return; }
+    var html = '<div class="menu-grid">';
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      html += '<div class="menu-card" id="amb-' + item.id + '">'
+        + '<div class="menu-card-img" style="background:' + (item.image ? "url('" + item.image + "') center/cover" : (item.color||'#f0e8d8')) + ';background-size:cover;">' + (item.image ? '' : (item.icon||'🕯️')) + '</div>'
+        + '<div class="menu-card-form"><div class="row"><div><label>Title</label><input id="at-' + item.id + '" value="' + escapeHtml(item.title) + '" /></div><div><label>Emoji</label><input id="ai-' + item.id + '" value="' + escapeHtml(item.icon||'🕯️') + '" /></div></div>'
+        + '<div class="row full"><div><label>Photo</label><input id="aimg-' + item.id + '" value="' + escapeHtml((item.image||'').replace('/images/','')) + '" placeholder="ambiance.jpg" /></div></div>'
+        + '<div style="padding-top:8px;"><button class="btn-sm primary" onclick="saveAmbiance(' + item.id + ')" id="abs-' + item.id + '">💾 Save</button></div></div></div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  } catch(e) { container.innerHTML = '<p style="color:#c62828;">Could not load ambiance.</p>'; }
+}
+
+async function saveAmbiance(id) {
+  var data = { title: document.getElementById('at-' + id).value.trim(), icon: document.getElementById('ai-' + id).value.trim()||'🕯️', image: getImgPath(document.getElementById('aimg-' + id).value.trim()) };
+  if (!data.title) { flash('Title required!','error'); return; }
+  try {
+    var res = await fetch('/api/ambiance/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    var json = await res.json();
+    flash(json.success ? 'Saved!' : (json.error||'Error'), json.success ? 'success' : 'error');
+  } catch(e) { flash('Connection error.','error'); }
+}
+
+// ══════════════════════════════════════════════════════════
+//  GALLERY MANAGEMENT
+// ══════════════════════════════════════════════════════════
+
+async function loadGallery() {
+  var container = document.getElementById('galleryList');
+  try {
+    var res = await fetch(API_BASE + '/api/gallery');
+    var json = await res.json();
+    if (!json.success) throw Error('Failed');
+    var items = json.data;
+    if (items.length === 0) { container.innerHTML = '<p style="color:#7a5a4a;">No gallery items.</p>'; return; }
+    var html = '<div class="menu-grid">';
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var preview = item.image ? '<img class="menu-card-img" src="' + item.image + '" style="width:100px;height:100px;border-radius:10px;object-fit:cover;" />' : '<div class="menu-card-img">' + (item.icon||'🍽') + '</div>';
+      html += '<div class="menu-card" id="gal-' + item.id + '">' + preview
+        + '<div class="menu-card-form"><div class="row"><div><label>Caption</label><input id="gc-' + item.id + '" value="' + escapeHtml(item.caption||'') + '" /></div><div><label>Emoji</label><input id="gico-' + item.id + '" value="' + escapeHtml(item.icon||'🍽') + '" /></div></div>'
+        + '<div class="row full"><div><label>Photo</label><input id="gimg-' + item.id + '" value="' + escapeHtml((item.image||'').replace('/images/','')) + '" placeholder="gallery.jpg" /></div></div>'
+        + '<div style="display:flex;gap:8px;padding-top:8px;"><button class="btn-sm primary" onclick="saveGallery(' + item.id + ')" id="gbs-' + item.id + '">💾 Save</button><button class="btn-sm danger" onclick="deleteGallery(' + item.id + ')">🗑 Delete</button></div></div></div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  } catch(e) { container.innerHTML = '<p style="color:#c62828;">Could not load gallery.</p>'; }
+}
+
+async function saveGallery(id) {
+  var data = { caption: document.getElementById('gc-'+id).value.trim()||null, icon: document.getElementById('gico-'+id).value.trim()||'🍽', image: getImgPath(document.getElementById('gimg-'+id).value.trim()) };
+  try {
+    var res = await fetch('/api/gallery/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    var json = await res.json();
+    flash(json.success ? 'Saved!' : (json.error||'Error'), json.success ? 'success' : 'error');
+  } catch(e) { flash('Connection error.','error'); }
+}
+
+function showAddGallery() {
+  var caption = prompt('Caption (optional):');
+  var icon = prompt('Emoji:', '🍽');
+  var img = prompt('Photo filename (e.g. gallery-1.jpg):\n(put in /images/ folder)');
+  if (!img && !icon) { flash('Need image or emoji.','error'); return; }
+  fetch('/api/gallery', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ caption: caption||null, icon: icon||'🍽', image: getImgPath(img) }) })
+    .then(function(r){ return r.json(); })
+    .then(function(j){ if(j.success){ flash('Added!'); loadGallery(); } else { flash(j.error||'Error','error'); }})
+    .catch(function(){ flash('Connection error.','error'); });
+}
+
+async function deleteGallery(id) {
+  if (!confirm('Delete this gallery item?')) return;
+  try { await fetch('/api/gallery/' + id, {method:'DELETE'}); document.getElementById('gal-'+id).remove(); flash('Deleted!'); } catch(e) { flash('Error.','error'); }
+}
+
+// ══════════════════════════════════════════════════════════
+//  MESSAGES & RESERVATIONS (superadmin only)
+// ══════════════════════════════════════════════════════════
+
+function formatDate(ds) { var d = new Date(ds + 'Z'); return d.toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}); }
+
+async function loadMessages() {
+  var container = document.getElementById('messagesList');
+  try {
+    var res = await fetch('/api/admin/messages');
+    var json = await res.json();
+    if (!json.success) throw Error('Failed');
+    var msgs = json.data;
+    document.getElementById('msgCount').textContent = msgs.length;
+    if (msgs.length === 0) { container.innerHTML = '<div class="empty"><div class="empty-icon">✉️</div>No messages yet.</div>'; return; }
+    container.innerHTML = msgs.map(function(m) {
+      return '<div class="card"><div class="card-header"><span class="card-title">' + escapeHtml(m.name) + '</span><span class="card-date">' + formatDate(m.created_at) + '</span></div>'
+        + '<div class="card-body"><span class="label">Email</span><a href="mailto:' + escapeHtml(m.email) + '" style="color:#800020;">' + escapeHtml(m.email) + '</a>'
+        + (m.subject ? '<span class="label">Subject</span><div>' + escapeHtml(m.subject) + '</div>' : '')
+        + '<span class="label">Message</span><div style="background:#faf6f0;padding:12px;border-radius:8px;margin-top:4px;">' + escapeHtml(m.message) + '</div></div></div>';
+    }).join('');
+  } catch(e) { container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div>Could not load messages.</div>'; }
+}
+
+async function loadReservations() {
+  var container = document.getElementById('reservationsList');
+  try {
+    var res = await fetch('/api/admin/reservations');
+    var json = await res.json();
+    if (!json.success) throw Error('Failed');
+    var reservations = json.data;
+    document.getElementById('resCount').textContent = reservations.length;
+    checkNewReservations(reservations);
+    if (reservations.length === 0) { container.innerHTML = '<div class="empty"><div class="empty-icon">📅</div>No reservations yet.</div>'; return; }
+    container.innerHTML = reservations.map(function(r) {
+      var statusColors = { pending: '#e65100', confirmed: '#2e7d32', completed: '#1565c0', cancelled: '#c62828' };
+      var statusBg = { pending: 'rgba(255,152,0,0.1)', confirmed: 'rgba(46,125,50,0.1)', completed: 'rgba(21,101,192,0.1)', cancelled: 'rgba(198,40,40,0.1)' };
+      var sColor = statusColors[r.status] || '#7a5a4a';
+      var sBg = statusBg[r.status] || 'rgba(0,0,0,0.04)';
+      var statusOpts = ['pending','confirmed','completed','cancelled'];
+      var statusSel = '<select onchange="updateResStatus(' + r.id + ', this.value)" style="padding:4px 8px;border:1px solid #e0d6c8;border-radius:6px;font-size:12px;font-weight:600;color:' + sColor + ';background:' + sBg + ';cursor:pointer;outline:none;">';
+      for (var si = 0; si < statusOpts.length; si++) {
+        statusSel += '<option value="' + statusOpts[si] + '"' + (r.status === statusOpts[si] ? ' selected' : '') + '>' + statusOpts[si].charAt(0).toUpperCase() + statusOpts[si].slice(1) + '</option>';
+      }
+      statusSel += '</select>';
+      var phoneLink = r.phone ? ' | <a href="https://wa.me/' + r.phone.replace(/[^0-9]/g,'') + '" target="_blank" style="color:#25D366;text-decoration:none;font-weight:600;" title="WhatsApp">💬 WhatsApp</a>' : '';
+      return '<div class="card"><div class="card-header"><span class="card-title">' + escapeHtml(r.name) + '</span><span class="card-date">' + formatDate(r.created_at) + '</span></div>'
+        + '<div class="card-body">'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><span class="label" style="margin-top:0;">Status</span>' + statusSel + '</div>'
+        + '<span class="label">Contact</span><div>📧 ' + escapeHtml(r.email) + (r.phone ? ' | 📞 ' + escapeHtml(r.phone) + phoneLink : '') + '</div>'
+        + '<span class="label">Date & Time</span><div>📅 ' + r.date + ' at ' + r.time + '</div>'
+        + '<span class="label">Room</span><div>' + (r.room_type === 'ac' ? '❄️ AC' : '🌀 Non AC') + '</div>'
+        + '<span class="label">Guests</span><div>👥 ' + r.guests + ' guest(s)' + (r.occasion ? ' | 🎉 ' + escapeHtml(r.occasion) : '') + '</div>'
+        + (r.ordered_items ? '<span class="label">Pre-ordered</span><div style="background:#faf6f0;padding:10px;border-radius:8px;">' + escapeHtml(r.ordered_items) + (r.total_price ? ' <strong style="color:var(--maroon);display:block;margin-top:6px;">Total: ' + escapeHtml(r.total_price) + '</strong>' : '') + '</div>' : '')
+        + (r.notes ? '<span class="label">Notes</span><div>' + escapeHtml(r.notes) + '</div>' : '')
+        + '<div style="margin-top:12px;padding-top:12px;border-top:1px solid #f0e8d8;display:flex;gap:8px;">'
+        + '<a href="mailto:' + escapeHtml(r.email) + '?subject=Reservation%20at%20Sultaf&body=Dear%20' + escapeHtml(r.name) + '" style="padding:6px 14px;border:1px solid #e0d6c8;border-radius:6px;text-decoration:none;font-size:12px;color:#7a5a4a;">📧 Email</a>'
+        + (r.phone ? '<a href="https://wa.me/' + r.phone.replace(/[^0-9]/g,'') + '" target="_blank" style="padding:6px 14px;border:1px solid #25D366;border-radius:6px;text-decoration:none;font-size:12px;color:#25D366;">💬 WhatsApp</a>' : '')
+        + '<button onclick="deleteReservation(' + r.id + ')" style="margin-left:auto;padding:6px 14px;border:none;border-radius:6px;background:#c62828;color:white;font-size:12px;cursor:pointer;">🗑 Delete</button>'
+        + '</div></div></div>';
+    }).join('');
+  } catch(e) { container.innerHTML = '<div class="empty"><div class="empty-icon">⚠️</div>Could not load reservations.</div>'; }
+}
+
+async function updateResStatus(id, status) {
+  try {
+    var res = await fetch('/api/admin/reservations/' + id, { method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({status:status}) });
+    var json = await res.json();
+    if (json.success) { flash('Status updated!'); }
+    else { flash(json.error||'Error','error'); }
+  } catch(e) { flash('Connection error.','error'); }
+}
+
+async function deleteReservation(id) {
+  if (!confirm('Delete this reservation?')) return;
+  try {
+    var res = await fetch('/api/admin/reservations/' + id, { method:'DELETE' });
+    var json = await res.json();
+    if (json.success) { flash('Reservation deleted!'); loadReservations(); }
+    else { flash(json.error||'Error','error'); }
+  } catch(e) { flash('Connection error.','error'); }
+}
+
+// ── Desktop & Sound Notifications ───────────────────────
+var prevResCount = 0;
+
+function checkNewReservations(reservations) {
+  if (prevResCount > 0 && reservations.length > prevResCount) {
+    var newCount = reservations.length - prevResCount;
+    var latest = reservations[0];
+    // Sound notification — loud attention-grabbing chime
+    try {
+      var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      var now = audioCtx.currentTime;
+
+      // Master gain — loud and proud
+      var masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.45, now);
+      masterGain.connect(audioCtx.destination);
+
+      // Note 1: Low punch (E5 = 659Hz)
+      var n1 = audioCtx.createOscillator();
+      var g1 = audioCtx.createGain();
+      n1.type = 'triangle';
+      n1.frequency.setValueAtTime(659, now);
+      g1.gain.setValueAtTime(0.5, now);
+      g1.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+      n1.connect(g1); g1.connect(masterGain);
+      n1.start(now); n1.stop(now + 0.25);
+
+      // Note 2: Higher bright hit (A5 = 880Hz)
+      var n2 = audioCtx.createOscillator();
+      var g2 = audioCtx.createGain();
+      n2.type = 'sine';
+      n2.frequency.setValueAtTime(880, now);
+      g2.gain.setValueAtTime(0.5, now + 0.15);
+      g2.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+      n2.connect(g2); g2.connect(masterGain);
+      n2.start(now + 0.15); n2.stop(now + 0.5);
+
+      // Note 3: Final bright ping (C6 = 1047Hz)
+      var n3 = audioCtx.createOscillator();
+      var g3 = audioCtx.createGain();
+      n3.type = 'sine';
+      n3.frequency.setValueAtTime(1047, now);
+      g3.gain.setValueAtTime(0.55, now + 0.35);
+      g3.gain.exponentialRampToValueAtTime(0.01, now + 0.55);
+      n3.connect(g3); g3.connect(masterGain);
+      n3.start(now + 0.35); n3.stop(now + 0.55);
+
+      // Fade master out
+      masterGain.gain.setValueAtTime(0.45, now);
+      masterGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+    } catch(e) {}
+    // Desktop notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('🔔 New Reservation!', {
+        body: latest.name + ' — ' + latest.guests + ' guests on ' + latest.date + ' at ' + latest.time,
+        icon: '/images/cover.jpg'
+      });
+    }
+    // Flash message
+    flash('🔔 ' + newCount + ' new reservation(s)!');
+  }
+  prevResCount = reservations.length;
+}
+
+// ══════════════════════════════════════════════════════════
+//  SETTINGS
+// ══════════════════════════════════════════════════════════
+
+function showSMsg(id, msg, type) { var el = document.getElementById(id); if(!el) return; el.textContent = msg; el.className = 'settings-msg ' + type; }
+
+async function changePassword() {
+  var c = document.getElementById('cpCurrent').value, n = document.getElementById('cpNew').value, cf = document.getElementById('cpConfirm').value;
+  if (!c||!n) { showSMsg('cpMsg','Fill all fields.','error'); return; }
+  if (n.length<6) { showSMsg('cpMsg','Min 6 chars.','error'); return; }
+  if (n!==cf) { showSMsg('cpMsg','Passwords dont match.','error'); return; }
+  try {
+    var res = await fetch('/api/auth/change-password', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({currentPassword:c, newPassword:n}) });
+    var json = await res.json();
+    if (json.success) { showSMsg('cpMsg','✅ Changed!','success'); document.getElementById('cpCurrent').value=''; document.getElementById('cpNew').value=''; document.getElementById('cpConfirm').value=''; }
+    else { showSMsg('cpMsg',json.error||'Error','error'); }
+    } catch(e) { showSMsg('cpMsg','Connection error.','error'); }
+}
+
+async function changeUsername() {
+  var pw = document.getElementById('cuCurrent').value;
+  var nu = document.getElementById('cuNew').value.trim();
+  if (!pw || !nu) { showSMsg('cuMsg','Fill all fields.','error'); return; }
+  if (nu.length < 3) { showSMsg('cuMsg','Min 3 chars.','error'); return; }
+  try {
+    var res = await fetch('/api/auth/change-username', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({currentPassword:pw, newUsername:nu}) });
+    var json = await res.json();
+    if (json.success) { showSMsg('cuMsg','✅ Changed! Login again with: ' + json.newUsername, 'success'); document.getElementById('cuCurrent').value=''; document.getElementById('cuNew').value=''; }
+    else { showSMsg('cuMsg',json.error||'Error','error'); }
+  } catch(e) { showSMsg('cuMsg','Connection error.','error'); }
+}
+
+async function saveSecretQuestion() {
+  var q = document.getElementById('sqQuestion').value, a = document.getElementById('sqAnswer').value.trim();
+  if (!a) { showSMsg('sqMsg','Enter answer.','error'); return; }
+  try {
+    var res = await fetch('/api/auth/secret-question', {method:'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify({question:q, answer:a}) });
+    var json = await res.json();
+    if (json.success) { showSMsg('sqMsg','✅ Saved!','success'); document.getElementById('sqAnswer').value=''; }
+    else { showSMsg('sqMsg',json.error||'Error','error'); }
+  } catch(e) { showSMsg('sqMsg','Connection error.','error'); }
+}
+
+async function generateRecoveryCode() {
+  try {
+    var res = await fetch('/api/auth/recovery-code');
+    var json = await res.json();
+    if (json.success) { document.getElementById('rcDisplay').textContent = json.code; document.getElementById('rcDisplay').style.display = 'block'; showSMsg('rcMsg','⚠️ Save this code!','success'); }
+    else { showSMsg('rcMsg',json.error||'Error','error'); }
+  } catch(e) { showSMsg('rcMsg','Connection error.','error'); }
+}
+
+// ══════════════════════════════════════════════════════════
+//  USER MANAGEMENT (superadmin only)
+// ══════════════════════════════════════════════════════════
+
+async function loadUsers() {
+  var container = document.getElementById('usersList');
+  try {
+    var res = await fetch('/api/auth/users');
+    var json = await res.json();
+    if (!json.success) throw Error('Failed');
+    var users = json.data;
+    document.getElementById('usersCount').textContent = users.length;
+    if (users.length === 0) { container.innerHTML = '<p style="color:#7a5a4a;">No users.</p>'; return; }
+    container.innerHTML = users.map(function(u) {
+      var self = u.username === document.getElementById('currentUser').textContent;
+      var roleLabel = u.role === 'superadmin' ? '<span class="role-tag" style="background:rgba(128,0,32,0.1);color:#800020;">Main Admin</span>' : '<span class="role-tag" style="background:rgba(200,164,92,0.15);color:#7a5a4a;">Staff</span>';
+      var del = (u.role !== 'superadmin' && !self) ? '<button class="btn-sm danger" onclick="delUser('+u.id+')" style="padding:4px 10px;font-size:12px;">Delete</button>' : (self ? '<span style="font-size:12px;color:#7a5a4a;">(you)</span>' : '');
+      return '<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:#faf6f0;border-radius:8px;margin-bottom:6px;border:1px solid #e0d6c8;"><div><strong>'+escapeHtml(u.username)+'</strong><br>'+roleLabel+'</div><div>'+del+'</div></div>';
+    }).join('');
+  } catch(e) { container.innerHTML = '<p style="color:#c62828;">Failed to load users.</p>'; }
+}
+
+async function createUser() {
+  var u = document.getElementById('newUsername').value.trim(), p = document.getElementById('newPassword').value.trim();
+  if (!u||!p) { showSMsg('createUserMsg','Fill all fields.','error'); return; }
+  if (u.length<3) { showSMsg('createUserMsg','Username min 3 chars.','error'); return; }
+  if (p.length<6) { showSMsg('createUserMsg','Password min 6 chars.','error'); return; }
+  var btn = document.querySelector('#panel-users .btn-sm.primary');
+  btn.disabled = true; btn.textContent = 'Creating...';
+  try {
+    var res = await fetch('/api/auth/create-user', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({username:u, password:p}) });
+    var json = await res.json();
+    if (json.success) { showSMsg('createUserMsg','✅ Created!','success'); document.getElementById('newUsername').value=''; document.getElementById('newPassword').value=''; loadUsers(); setTimeout(function(){ location.reload(); }, 1500); }
+    else { showSMsg('createUserMsg',json.error||'Error','error'); }
+  } catch(e) { showSMsg('createUserMsg','Connection error.','error'); }
+  btn.disabled = false; btn.textContent = 'Create User';
+}
+
+async function delUser(id) {
+  if (!confirm('Delete this user?')) return;
+  try { var res = await fetch('/api/auth/users/' + id, {method:'DELETE'}); var j = await res.json(); if(j.success) loadUsers(); else alert(j.error); } catch(e) { alert('Error.'); }
+}
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+
+checkAuth();
+
+// Request notification permission for new reservation alerts
+if ('Notification' in window && Notification.permission === 'default') {
+  Notification.requestPermission();
+}
+
+// Load all data
+loadHeroImage();
+loadReservationTimes();
+loadLogoImage();
+loadConfirmImage();
+loadMenu();
+loadAmbiance();
+loadGallery();
+
+var refreshTimer = null;
+var currentRefreshMs = 15000;
+
+function changeRefreshInterval(ms) {
+  ms = parseInt(ms);
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+  currentRefreshMs = ms;
+  if (ms > 0 && currentUserRole === 'superadmin') {
+    refreshTimer = setInterval(function() {
+      loadReservations();
+    }, ms);
+  }
+}
+
+function testNotification() {
+  try {
+    var audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    var now = audioCtx.currentTime;
+    var masterGain = audioCtx.createGain();
+    masterGain.gain.setValueAtTime(0.45, now);
+    masterGain.connect(audioCtx.destination);
+    var n1 = audioCtx.createOscillator(); var g1 = audioCtx.createGain();
+    n1.type = 'triangle'; n1.frequency.setValueAtTime(659, now);
+    g1.gain.setValueAtTime(0.5, now); g1.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+    n1.connect(g1); g1.connect(masterGain); n1.start(now); n1.stop(now + 0.25);
+    var n2 = audioCtx.createOscillator(); var g2 = audioCtx.createGain();
+    n2.type = 'sine'; n2.frequency.setValueAtTime(880, now);
+    g2.gain.setValueAtTime(0.5, now + 0.15); g2.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+    n2.connect(g2); g2.connect(masterGain); n2.start(now + 0.15); n2.stop(now + 0.5);
+    var n3 = audioCtx.createOscillator(); var g3 = audioCtx.createGain();
+    n3.type = 'sine'; n3.frequency.setValueAtTime(1047, now);
+    g3.gain.setValueAtTime(0.55, now + 0.35); g3.gain.exponentialRampToValueAtTime(0.01, now + 0.55);
+    n3.connect(g3); g3.connect(masterGain); n3.start(now + 0.35); n3.stop(now + 0.55);
+    masterGain.gain.setValueAtTime(0.45, now); masterGain.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+  } catch(e) {}
+  flash('🔔 Notification test — sound should play!');
+}
+
+// Load superadmin data after short delay (after auth check completes)
+setTimeout(function() {
+  if (currentUserRole === 'superadmin') {
+    loadMessages();
+    loadReservations();
+    // Start auto-refresh with selected interval
+    var sel = document.getElementById('refreshInterval');
+    if (sel) changeRefreshInterval(sel.value);
+  }
+}, 500);
+</script>
+</body>
+</html>

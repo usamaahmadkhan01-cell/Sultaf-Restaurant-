@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — Sultaf Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #5c0017 0%, #800020 50%, #4a0012 100%);
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .login-card {
+      background: #faf6f0;
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%; max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .logo {
+      text-align: center; margin-bottom: 32px;
+    }
+    .logo-icon {
+      width: 54px; height: 54px;
+      background: #800020; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #c8a45c; margin: 0 auto 12px;
+      overflow: hidden;
+    }
+    .logo h1 {
+      font-family: 'Playfair Display', serif;
+      color: #800020; font-size: 24px;
+    }
+    .logo h1 span { color: #c8a45c; }
+    .logo p { font-size: 13px; color: #7a5a4a; margin-top: 4px; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label {
+      display: block; font-size: 12px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      color: #7a5a4a; margin-bottom: 6px;
+    }
+    .form-group input, .form-group select {
+      width: 100%; padding: 14px 16px;
+      border: 1px solid #e0d6c8; border-radius: 10px;
+      font-size: 15px; font-family: inherit; background: white;
+      outline: none; transition: border-color 0.3s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      border-color: #c8a45c;
+      box-shadow: 0 0 0 3px rgba(200,164,92,0.1);
+    }
+    .btn-login {
+      width: 100%; padding: 14px;
+      border: none; border-radius: 10px;
+      background: #800020; color: white;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-login:hover { background: #5c0017; transform: translateY(-1px); }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .btn-secondary {
+      width: 100%; padding: 14px;
+      border: 1px solid #800020; border-radius: 10px;
+      background: transparent; color: #800020;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: all 0.3s; margin-top: 8px;
+    }
+    .btn-secondary:hover { background: rgba(128,0,32,0.05); }
+    .error-msg {
+      background: rgba(198,40,40,0.08);
+      border: 1px solid rgba(198,40,40,0.15);
+      color: #c62828; padding: 12px 16px;
+      border-radius: 10px; font-size: 14px;
+      margin-bottom: 16px; display: none;
+    }
+    .error-msg.show { display: block; }
+    .success-msg {
+      background: rgba(46,125,50,0.08);
+      border: 1px solid rgba(46,125,50,0.15);
+      color: #2e7d32; padding: 12px 16px;
+      border-radius: 10px; font-size: 14px;
+      margin-bottom: 16px; display: none;
+    }
+    .success-msg.show { display: block; }
+    .info-text {
+      text-align: center; margin-top: 20px;
+      font-size: 12px; color: #7a5a4a;
+    }
+    .forgot-link {
+      text-align: center; margin-top: 12px;
+    }
+    .forgot-link a {
+      color: #800020; font-size: 13px;
+      text-decoration: none; cursor: pointer;
+    }
+    .forgot-link a:hover { text-decoration: underline; }
+    .back-link {
+      text-align: center; margin-top: 16px;
+    }
+    .back-link a {
+      color: #7a5a4a; font-size: 13px;
+      text-decoration: none; cursor: pointer;
+    }
+    .back-link a:hover { color: #800020; }
+    .spinner { display: none; }
+    .btn-login.loading .spinner { display: inline-block; }
+    .btn-login.loading .btn-text { display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner::after {
+      content: ''; display: inline-block; width: 16px; height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white; border-radius: 50%;
+      animation: spin 0.6s linear infinite; vertical-align: middle;
+    }
+    .step { display: none; }
+    .step.active { display: block; }
+    .recovery-code-box {
+      background: #f0e8d8; padding: 16px;
+      border-radius: 10px; text-align: center;
+      font-family: monospace; font-size: 24px;
+      letter-spacing: 4px; color: #800020;
+      margin: 16px 0; font-weight: 700;
+    }
+    .recovery-warning {
+      background: rgba(255,152,0,0.1);
+      border: 1px solid rgba(255,152,0,0.2);
+      color: #e65100; padding: 12px 16px;
+      border-radius: 10px; font-size: 13px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="logo">
+      <div class="logo-icon" id="loginLogo">☪</div>
+      <h1>Sultaf <span>Admin</span></h1>
+      <p>Admin access only</p>
+    </div>
+
+    <div id="errorMsg" class="error-msg"></div>
+    <div id="successMsg" class="success-msg"></div>
+
+    <!-- Step 1: Login -->
+    <div class="step active" id="step-login">
+      <form id="loginForm" autocomplete="off">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="username" placeholder="Enter username" autocomplete="username" required />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="password" placeholder="Enter password" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn-login" id="loginBtn">
+          <span class="btn-text">✦ Sign In</span>
+          <span class="spinner"></span>
+        </button>
+      </form>
+      <div class="forgot-link">
+        <a onclick="showForgotStep()">Forgot password?</a>
+      </div>
+          </div>
+
+    <!-- Step 2: Forgot Password - Choose method -->
+    <div class="step" id="step-forgot">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" id="forgotUsername" placeholder="Enter your username" />
+      </div>
+      <button class="btn-login" onclick="checkForgotMethod()" id="forgotCheckBtn">
+        <span class="btn-text">Continue</span>
+        <span class="spinner"></span>
+      </button>
+      <div class="back-link">
+        <a onclick="showLoginStep()">← Back to login</a>
+      </div>
+    </div>
+
+    <!-- Step 3: Answer Secret Question -->
+    <div class="step" id="step-question">
+      <p style="font-size:14px;color:#7a5a4a;margin-bottom:8px;">Answer your secret question:</p>
+      <p style="font-size:16px;font-weight:600;color:#2c1810;margin-bottom:16px;" id="displayQuestion"></p>
+      <div class="form-group">
+        <label>Your Answer</label>
+        <input type="text" id="secretAnswer" placeholder="Type your answer" />
+      </div>
+      <button class="btn-login" onclick="resetWithQuestion()" id="resetQBtn">
+        <span class="btn-text">Reset Password</span>
+        <span class="spinner"></span>
+      </button>
+      <div style="text-align:center;margin-top:12px;">
+        <a onclick="showRecoveryCodeStep()" style="color:#800020;font-size:13px;cursor:pointer;text-decoration:none;">Use recovery code instead →</a>
+      </div>
+      <div class="back-link">
+        <a onclick="showForgotStep()">← Back</a>
+      </div>
+    </div>
+
+    <!-- Step 4: Recovery Code -->
+    <div class="step" id="step-recovery">
+      <div class="recovery-warning">⚠️ Enter your one-time recovery code. You can generate a new code from the admin dashboard when logged in.</div>
+      <div class="form-group">
+        <label>Recovery Code</label>
+        <input type="text" id="recoveryCodeInput" placeholder="e.g. ABC123-DEF456" style="text-transform:uppercase;font-family:monospace;letter-spacing:2px;" />
+      </div>
+      <button class="btn-login" onclick="resetWithCode()" id="resetCodeBtn">
+        <span class="btn-text">Reset Password</span>
+        <span class="spinner"></span>
+      </button>
+      <div class="back-link">
+        <a onclick="showForgotStep()">← Back</a>
+      </div>
+    </div>
+
+    <!-- Step 5: New Password (for reset) -->
+    <div class="step" id="step-newpass">
+      <p style="font-size:14px;color:#7a5a4a;margin-bottom:16px;">Choose a new password (at least 6 characters):</p>
+      <div class="form-group">
+        <label>New Password</label>
+        <input type="password" id="newPassword" placeholder="Enter new password" />
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="confirmPassword" placeholder="Confirm new password" />
+      </div>
+      <button class="btn-login" onclick="completeReset()" id="completeResetBtn">
+        <span class="btn-text">Set New Password</span>
+        <span class="spinner"></span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // Load logo from database
+    fetch('/api/restaurant-info').then(function(r){return r.json();}).then(function(j){
+      if(j.success && j.data.logo_image){
+        var logo = document.getElementById('loginLogo');
+        if(logo) logo.innerHTML = '<img src="'+j.data.logo_image+'" alt="Sultaf" style="width:85%;height:85%;object-fit:contain;border-radius:50%;" onerror="this.parentElement.textContent=\'☪\'" />';
+      }
+    }).catch(function(){});
+
+    let resetMethod = null;
+    let resetUsername = '';
+
+    // Step navigation
+    function showLoginStep() {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-login').classList.add('active');
+      document.getElementById('pageTitle').textContent = 'Sign in to manage your restaurant';
+      hideMessages();
+    }
+    function showForgotStep() {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-forgot').classList.add('active');
+      document.getElementById('pageTitle').textContent = 'Reset your password';
+      hideMessages();
+    }
+    function showRecoveryCodeStep() {
+      document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+      document.getElementById('step-recovery').classList.add('active');
+      document.getElementById('pageTitle').textContent = 'Enter recovery code';
+      hideMessages();
+    }
+    function hideMessages() {
+      document.getElementById('errorMsg').classList.remove('show');
+      document.getElementById('successMsg').classList.remove('show');
+    }
+    function showError(msg) {
+      var el = document.getElementById('errorMsg');
+      el.textContent = msg; el.classList.add('show');
+    }
+    function showSuccess(msg) {
+      var el = document.getElementById('successMsg');
+      el.textContent = msg; el.classList.add('show');
+    }
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideMessages();
+      var btn = document.getElementById('loginBtn');
+      var username = document.getElementById('username').value.trim();
+      var password = document.getElementById('password').value.trim();
+      if (!username || !password) { showError('Please enter username and password.'); return; }
+      btn.disabled = true; btn.classList.add('loading');
+      try {
+        var res = await fetch('/api/auth/login', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({username, password}) });
+        var json = await res.json();
+        if (json.success) {
+          var params = new URLSearchParams(window.location.search);
+          window.location.href = params.get('redirect') || 'admin.html';
+        } else {
+          showError(json.error || 'Login failed.');
+        }
+      } catch(err) { showError('Connection error.'); }
+      btn.disabled = false; btn.classList.remove('loading');
+    });
+
+    // Forgot password flow
+    async function checkForgotMethod() {
+      hideMessages();
+      var username = document.getElementById('forgotUsername').value.trim();
+      if (!username) { showError('Please enter your username.'); return; }
+      var btn = document.getElementById('forgotCheckBtn');
+      btn.disabled = true; btn.classList.add('loading');
+      try {
+        var res = await fetch('/api/auth/secret-question?username=' + encodeURIComponent(username));
+        var json = await res.json();
+        if (json.success && json.question) {
+          document.getElementById('displayQuestion').textContent = json.question;
+          document.getElementById('secretAnswer').value = '';
+          resetMethod = 'question';
+          resetUsername = username;
+          document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+          document.getElementById('step-question').classList.add('active');
+          document.getElementById('pageTitle').textContent = 'Answer security question';
+        } else {
+          // No question set, offer recovery code
+          resetMethod = 'code';
+          resetUsername = username;
+          document.getElementById('recoveryCodeInput').value = '';
+          document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+          document.getElementById('step-recovery').classList.add('active');
+          document.getElementById('pageTitle').textContent = 'Enter recovery code';
+          showError('No secret question set. Please use a recovery code.');
+        }
+      } catch(err) { showError('Connection error.'); }
+      btn.disabled = false; btn.classList.remove('loading');
+    }
+
+    // Reset with secret question
+    async function resetWithQuestion() {
+      hideMessages();
+      var answer = document.getElementById('secretAnswer').value.trim();
+      if (!answer) { showError('Please enter your answer.'); return; }
+      var btn = document.getElementById('resetQBtn');
+      btn.disabled = true; btn.classList.add('loading');
+      try {
+        var res = await fetch('/api/auth/reset-password', { method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ username: resetUsername, newPassword: 'temp123', method: 'question', answer: answer })
+        });
+        var json = await res.json();
+        if (json.success) {
+          // Correct answer! Now show new password step
+          document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+          document.getElementById('step-newpass').classList.add('active');
+          document.getElementById('pageTitle').textContent = 'Set new password';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('confirmPassword').value = '';
+        } else {
+          showError(json.error || 'Incorrect answer.');
+        }
+      } catch(err) { showError('Connection error.'); }
+      btn.disabled = false; btn.classList.remove('loading');
+    }
+
+    // Reset with recovery code
+    async function resetWithCode() {
+      hideMessages();
+      var code = document.getElementById('recoveryCodeInput').value.trim();
+      if (!code) { showError('Please enter your recovery code.'); return; }
+      var btn = document.getElementById('resetCodeBtn');
+      btn.disabled = true; btn.classList.add('loading');
+      try {
+        var res = await fetch('/api/auth/reset-password', { method: 'POST', headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({ username: resetUsername, newPassword: 'temp123', method: 'code', recoveryCode: code })
+        });
+        var json = await res.json();
+        if (json.success) {
+          document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+          document.getElementById('step-newpass').classList.add('active');
+          document.getElementById('pageTitle').textContent = 'Set new password';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('confirmPassword').value = '';
+        } else {
+          showError(json.error || 'Invalid code.');
+        }
+      } catch(err) { showError('Connection error.'); }
+      btn.disabled = false; btn.classList.remove('loading');
+    }
+
+    // Complete reset
+    async function completeReset() {
+      hideMessages();
+      var newPass = document.getElementById('newPassword').value;
+      var confirmPass = document.getElementById('confirmPassword').value;
+      if (newPass.length < 6) { showError('Password must be at least 6 characters.'); return; }
+      if (newPass !== confirmPass) { showError('Passwords do not match.'); return; }
+      var btn = document.getElementById('completeResetBtn');
+      btn.disabled = true; btn.classList.add('loading');
+
+      // Use the correct method
+      var body = { username: resetUsername, newPassword: newPass, method: resetMethod };
+      if (resetMethod === 'question') {
+        body.answer = document.getElementById('secretAnswer').value.trim();
+      } else {
+        body.recoveryCode = document.getElementById('recoveryCodeInput').value.trim();
+      }
+
+      try {
+        var res = await fetch('/api/auth/reset-password', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        var json = await res.json();
+        if (json.success) {
+          showSuccess('✅ Password reset successfully!');
+          setTimeout(function() { window.location.href = '/login.html'; }, 2000);
+        } else {
+          showError(json.error || 'Failed to reset.');
+        }
+      } catch(err) { showError('Connection error.'); }
+      btn.disabled = false; btn.classList.remove('loading');
+    }
+
+    // Auto-focus
+    document.getElementById('username').focus();
+  </script>
+</body>
+</html>
